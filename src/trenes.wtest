@@ -1,0 +1,74 @@
+import trenes.*
+import deposito.*
+
+describe "Tests de trenes" {
+//	var formacion = new FormacionCortaDistancia()
+	var formacion = new Formacion()
+	var locomotoraLenta = new Locomotora(velocidad=70)
+	var locomotora = new Locomotora()
+	var vagonPasajeros = new VagonPasajeros(largo=10, ancho=3)
+	var vagonCarga= new VagonCarga(carga=100)
+	var deposito = new Deposito()
+	var otraFormacion = new Formacion()
+	var otroVagon = new VagonCarga(carga=500)
+	var otraLocomotora = new Locomotora(arrastreMax = 100)
+    var locomotoraSuelta = new Locomotora(arrastreMax = 100000)	
+	
+	fixture{
+		formacion.agregarLocomotora(locomotoraLenta)
+		formacion.agregarLocomotora(locomotora)
+		formacion.agregarVagon(vagonCarga)
+		formacion.agregarVagon(vagonPasajeros)
+		otraFormacion.agregarLocomotora(otraLocomotora)
+		otraFormacion.agregarVagon(otroVagon)
+		deposito.agregarFormacion(formacion)
+		deposito.agregarFormacion(otraFormacion)
+		deposito.agregarLocomotora(locomotoraSuelta)
+		
+	}
+	//Punto 1
+	test "la cantidad de vagones livianos de la formacion"{
+		assert.equals(1,formacion.cuantosLivianos())
+	}
+	// Punto 2
+	test "La velocidad máxima es la menor de las locomotoras" {
+		assert.equals(70, formacion.velocidadMaxima())
+}
+	// Punto 3
+	test "La formacion es eficiente cuando todas las locomotoras son eficientes"{
+		assert.that(formacion.eficiente())
+	}
+	// Punto 4
+	test "La formacion puede moverse"{
+		assert.that(formacion.puedeMoverse())
+	}
+	test "La otra formacion no puede moverse"{
+		assert.notThat(otraFormacion.puedeMoverse())
+	}
+	// Punto 5
+	test "A la formacion que puede moverse no le faltan kilos "{
+		assert.equals(0, formacion.arrastreFaltante())
+	}
+	test "A la otra formacion, que no puede moverse, le faltan kilos "{
+		assert.equals(1560, otraFormacion.arrastreFaltante())
+	}
+	// Punto 6
+	test "Los vagones pesados de cada formación"{
+		assert.equals([vagonPasajeros,otroVagon],deposito.vagonesMasPesados())
+	}
+	// Punto 7
+	test "El depósito necesita conductor experimentado"{
+		assert.that(deposito.necesitaConductorExperimentado())
+	}
+	// Punto 8
+	test "Al completar el arrastre de una formacion que se puede mover, no hace falta agregar locomotora"{
+		deposito.permitirMoverse(formacion)	
+		assert.that(deposito.locomotorasSueltas().contains(locomotoraSuelta))
+		assert.notThat(formacion.locomotoras().contains(locomotoraSuelta))
+	}
+	test "Al completar el arrastre de una formacion que se no puede mover, se agrega una locomotora de las sueltas"{
+		deposito.permitirMoverse(otraFormacion)	
+		assert.notThat(deposito.locomotorasSueltas().contains(locomotoraSuelta))
+		assert.that(otraFormacion.locomotoras().contains(locomotoraSuelta))
+	}
+}
