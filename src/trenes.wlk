@@ -29,7 +29,6 @@ class Formacion {
 	method velocidadMaxima() {
 		return locomotoras.min{ locomotora => locomotora.velocidad() }.velocidad()
 	}
-	//.min(self.velMaxPermitida())
 
 	// Punto 3
 	method eficiente() {
@@ -75,82 +74,82 @@ class Formacion {
 		return locomotora.arrastreUtil() >= self.arrastreFaltante() 
 	}
 	
-//	method cantidadDeBanos() {
-//		return vagones.sum{ vagon => vagon.banos() }
-//	}
-//
-//	method siTodosSonLivianos() {
-//		return vagones.all{ vagon => vagon.peso() < 2500 }
-//	}
-//
-//method capacidadPasajeros() {
-//		return vagones.sum{ vagon => vagon.cantidadPasajeros() }
-//	}
-//
-//	method velMaxPermitida()
-//	method pesoMaxLocomotoras() {
-//		return locomotoras.sum{ locomotora => locomotora.peso() }
-//	}
-//
+	// Segunda parte
+
+	// Punto 9
+	method bienArmada(){
+		return self.puedeMoverse() and self.bienArmadaEspecifica()
+	}
+	
+	method bienArmadaEspecifica()
+	
+	// Punto 10
+	method velocidadMaximaReal() = self.velocidadMaxima().min(self.limiteVelocidad())
+	
+	method limiteVelocidad() = self.velocidadMaxima()
+	
 
 }
 
-//class FormacionCortaDistancia inherits Formacion{
-//	
-//	method estaBienArmada(){
-//		return not self.compleja()
-//		
-//	}
-//	
-//	override method velMaxPermitida(){
-//		
-//		return 60
-//		 
-//		
-//	}
-//}
-//
-//
-//
-//class FormacionLargaDistancia inherits Formacion{
-//	
-//	const origen = null
-//	const destino = null
-//	
-//	method estaBienArmada(){
-//		
-//	return self.capacidadPasajeros()/50 >= self.cantidadDeBanos()	
-//		
-//	}
-//			
-//	override method velMaxPermitida(){
-//		if (self.uneDosCiudadesGrandes())
-//		return 200
-//		else
-//		return 150
-//	}
-//	
-//	method uneDosCiudadesGrandes(){
-//		return origen.esGrande() and destino.esGrande()
-//		 
-//	}
-//		
-//
-//}
-//class FormacionAltaVelocidad inherits FormacionLargaDistancia {
-//
-//	override method estaBienArmada() {
-//		return super() and self.siTodosSonLivianos() and self.velMax() >= 250
-//	}
-//
-//	override method velMaxPermitida() {
-//		return 400
-//	}
-//
-//}
-//
-//class Ciudad {
-//	
-//	const property esGrande=true
-//
-//}
+
+
+class FormacionCortaDistancia inherits Formacion{
+	
+	// Para Punto 9
+	override method bienArmadaEspecifica() = !self.compleja()
+		
+	// Para Punto 10
+	override method limiteVelocidad() = 60
+		
+}
+
+
+
+class FormacionLargaDistancia inherits Formacion{
+	
+	var property origen 
+	var property destino 
+	
+	// Para Punto 9
+	override method bienArmadaEspecifica() = self.cantidadPasajeros()/50 >= self.cantidadBanos()	
+		
+	method cantidadBanos(){
+		return vagones.sum({vagon => vagon.cantidadBanos()})
+	}
+			
+	method cantidadPasajeros() {
+		return vagones.sum{ vagon => vagon.pasajeros() }
+	}
+
+	//Para Punto 10
+	override method limiteVelocidad() =
+		if (self.uneDosCiudadesGrandes()) 200 else 150
+	
+	method uneDosCiudadesGrandes() = 
+		origen.esGrande() and destino.esGrande()
+
+}
+
+// Para Punto 10
+class Ciudad {
+	
+	var property esGrande=true
+
+}
+
+
+// Punto 11
+class FormacionAltaVelocidad inherits FormacionLargaDistancia {
+
+	override method bienArmada() {
+		return super() and self.vagonesLivianos() and self.velocidadMaximaReal() >= 250
+	}
+
+	override method limiteVelocidad() = 400
+	
+	method vagonesLivianos() {
+		return vagones.all{ vagon => vagon.peso() < 2500 }
+	}
+
+}
+

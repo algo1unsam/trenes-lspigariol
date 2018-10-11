@@ -55,7 +55,7 @@ class Locomotora {
 }
 
 class VagonPasajeros {
-//	const property banos = 2
+	var property cantidadBanos = 2
 	var property largo 
 	var property ancho 
 	
@@ -66,7 +66,7 @@ class VagonPasajeros {
 
 
 class VagonCarga{
-//	const property banos = 0
+	const property cantidadBanos = 0
 	var property carga
 	
 	method pasajeros()= 0

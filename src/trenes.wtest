@@ -2,20 +2,21 @@ import trenes.*
 import deposito.*
 
 describe "Tests de trenes" {
-//	var formacion = new FormacionCortaDistancia()
-	var formacion = new Formacion()
-	var locomotoraLenta = new Locomotora(velocidad=70)
+	var formacion = new FormacionLargaDistancia(origen=new Ciudad(),destino=new Ciudad())
 	var locomotora = new Locomotora()
+	var locomotoraAdicional = new Locomotora(velocidad=70)
 	var vagonPasajeros = new VagonPasajeros(largo=10, ancho=3)
 	var vagonCarga= new VagonCarga(carga=100)
 	var deposito = new Deposito()
-	var otraFormacion = new Formacion()
+	var otraFormacion = new FormacionCortaDistancia()
 	var otroVagon = new VagonCarga(carga=500)
 	var otraLocomotora = new Locomotora(arrastreMax = 100)
     var locomotoraSuelta = new Locomotora(arrastreMax = 100000)	
+    var locomotoraLenta = new Locomotora(velocidad = 5)
+    var formacionAltaVelocidad = new FormacionAltaVelocidad(origen = new Ciudad(), destino = new Ciudad())	
 	
 	fixture{
-		formacion.agregarLocomotora(locomotoraLenta)
+		formacion.agregarLocomotora(locomotoraAdicional)
 		formacion.agregarLocomotora(locomotora)
 		formacion.agregarVagon(vagonCarga)
 		formacion.agregarVagon(vagonPasajeros)
@@ -24,7 +25,11 @@ describe "Tests de trenes" {
 		deposito.agregarFormacion(formacion)
 		deposito.agregarFormacion(otraFormacion)
 		deposito.agregarLocomotora(locomotoraSuelta)
-		
+		formacionAltaVelocidad.agregarVagon(vagonCarga) 
+	}
+	method acelerarFormacion(unaFormacion){
+		unaFormacion.locomotoras().clear()
+		unaFormacion.locomotoras().add(new Locomotora(velocidad=300))
 	}
 	//Punto 1
 	test "la cantidad de vagones livianos de la formacion"{
@@ -71,4 +76,49 @@ describe "Tests de trenes" {
 		assert.notThat(deposito.locomotorasSueltas().contains(locomotoraSuelta))
 		assert.that(otraFormacion.locomotoras().contains(locomotoraSuelta))
 	}
+	
+	// Segunda parte
+	
+	//Punto 9
+	test "La formacion de larga distancia esta bien armada" {
+		assert.that(formacion.bienArmada())
+	}
+	test "La formacion de corta distancia no esta bien armada" {
+		assert.notThat(otraFormacion.bienArmada())
+	}
+	
+	//Punto 10
+	test "La velocidad maxima real de la formacion, es la de la locomotora" {
+		assert.equals(70,formacion.velocidadMaximaReal())
+	} 
+	test "La velocidad maxima real de la formacion de larga distancia, con una locomotora rápida, es el limite de velocidad entre ciudades grandes" {
+		self.acelerarFormacion(formacion)
+		assert.equals(200,formacion.velocidadMaximaReal())
+	} 
+	test "La velocidad maxima real de la formacion de larga distancia, con una locomotora rápida, es el limite de velocidad entre ciudades chicas" {
+		self.acelerarFormacion(formacion)
+		formacion.destino(new Ciudad(esGrande = false))
+		assert.equals(150,formacion.velocidadMaximaReal())
+	} 
+	test "La velocidad maxima real de la formacion de corta distancia, es 60" {
+		assert.equals(60,otraFormacion.velocidadMaximaReal())
+	} 
+	test "La velocidad maxima real de la formacion de corta distancia, con locomotora lenta, es la de esa locomotora" {
+		otraFormacion.locomotoras().add(locomotoraLenta)
+		assert.equals(5,otraFormacion.velocidadMaximaReal())
+	} 
+	// Punto 12
+	test "Formacion de alta velocidad esta bien armada" {
+		self.acelerarFormacion(formacionAltaVelocidad)
+		assert.that(formacionAltaVelocidad.bienArmada())
+	}		
+	test "Formacion de alta velocidad no esta bien armada, si tiene vagon pesado" {
+		self.acelerarFormacion(formacionAltaVelocidad)
+		formacionAltaVelocidad.agregarVagon(vagonPasajeros)
+		assert.notThat(formacionAltaVelocidad.bienArmada())
+	}
+	test "Formacion de alta velocidad no esta bien armada, si no tiene locomotora rapida " {
+		assert.notThat(formacionAltaVelocidad.bienArmada())
+	}		
+			
 }
