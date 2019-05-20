@@ -1,4 +1,7 @@
 <img src="img/tren_antiguo.jpeg" height="200" width="300">
+ 
+[![Build Status](https://travis-ci.org/wollok/EjercicioIntegradorTrenes.svg?branch=master)](https://travis-ci.org/wollok/EjercicioIntegradorTrenes)
+
 
 # Ejercicio - Trenes
 
